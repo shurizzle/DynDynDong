@@ -9,6 +9,13 @@ class Client
       s.fetch
     }
   end
+
+  def self.start_loop
+    while true
+      self.start
+      sleep DynDynDong.delay
+    end
+  end
 end
 
 end

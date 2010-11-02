@@ -7,10 +7,7 @@ class Daemon
   def self.start
     Daemons.daemonize
 
-    while true
-      DynDynDong::Client.start
-      sleep DynDynDong.delay
-    end
+    DynDynDong::Client.start_loop
   end
 end
 

@@ -23,7 +23,8 @@ DynDynDong::DynDNS has:
 There are, also, the functions DynDynDong.delay= and DynDynDong.delay, useful to
 set and get the time to wait between two updates.
 
-Use DynDynDong::Client.start to start all updates and DynDynDong::Daemon.start
-to run a DynDynDong::Client.start every DynDynDong.delay.
+Use DynDynDong::Client.start to start all updates, DynDynDong to call
+DynDynDong::Client.start\_loop every DynDynDong.delay and DynDynDong::Daemon.start
+to run a DynDynDong::Client.start\_loop and daemonize itself.
 
 That's all, enjoy :D

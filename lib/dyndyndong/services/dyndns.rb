@@ -26,11 +26,11 @@ class DynDNS < Service
   end
 
   def username(u)
-    @user = u.to_s.dup
+    @user = u.to_s
   end
 
   def password(p)
-    @pass = p.to_s.dup
+    @pass = p.to_s
   end
 
   alias username= username

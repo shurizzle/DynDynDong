@@ -1,0 +1,166 @@
+#!/usr/bin/ruby
+
+require 'dyndyndong'
+
+def die(str)
+  STDERR.puts str
+  exit 1
+end
+
+CONFIG = '/etc/dyndyndong.conf'
+DEFAULT_CONFIG = CONFIG.dup
+daemon = false
+
+i, SERVICES = 0, {
+  :dyndns => [],
+  :afraid => []
+}
+
+
+while i < ARGV.size
+  parsed = false
+  case ARGV[i]
+  when '-d', '--daemon'
+    daemon = true
+  when /^-D/, '--delay'
+    if %w{-D --delay}.include?(ARGV[i])
+      delay = ARGV[i += 1]
+    else
+      delay = ARGV[i].gsub(/^-D/, '')
+    end
+    parsed = true
+  when /^-c/, '--config'
+    if %w{-c --config}.include?(ARGV[i])
+      CONFIG.replace(ARGV[i += 1])
+    else
+      CONFIG.replace(ARGV[i].gsub(/^-c/, ''))
+    end
+    parsed = true
+  when /^-s/, '--service'
+    if %w{-s --service}.include?(ARGV[i])
+      service = ARGV[i += 1]
+    else
+      service = ARGV[i].gsub(/^-s/, '')
+    end
+
+    case service
+    when 'dyndns'
+      srv = {:hosts => [], :offline => []}
+      while (i += 1) < ARGV.size
+        parsed = true
+        case ARGV[i]
+        when /^-u/, '--username'
+          die "Can't add more than one username" if srv[:username]
+
+          if %w{-u --username}.include?(ARGV[1])
+            srv[:username] = ARGV[i += 1]
+          else
+            srv[:username] = ARGV[i].gsub(/^-u/, '')
+          end
+        when /^-p/, '--password'
+          die "Can't add more than one password" if srv[:password]
+
+          if %w{-p --password}.include?(ARGV[1])
+            srv[:password] = ARGV[i += 1]
+          else
+            srv[:password] = ARGV[i].gsub(/^-p/, '')
+          end
+        when /^-H/, '--host'
+          if %w{-H --host}.include?(ARGV[i])
+            srv[:hosts] << ARGV[i += 1].split(',')
+          else
+            srv[:hosts] << ARGV[i].gsub(/^-H/, '').split(',')
+          end
+        when /^-o/, '--offline'
+          if %w{-o --offline}.include?(ARGV[i])
+            srv[:offline] << ARGV[i += 1].split(',')
+          else
+            srv[:offline] << ARGV[i].gsub(/^-o/).split(',')
+          end
+        else
+          parsed = false
+          break
+        end
+      end
+      srv[:hosts].flatten!
+      srv[:offline].flatten!
+    when 'afraid'
+      srv = []
+
+      while (i += 1) < ARGV.size
+        parsed = true
+        if ARGV[i] == '--host' or ARGV[i] == '-H'
+          srv += ARGV[i += 1].split(',').map {|h|
+            h.split(':')
+          }
+        elsif ARGV[i] =~ /^-H/
+          srv += ARGV[i].gsub(/^-H/, '').split(',').map {|h|
+            h.split(':')
+          }
+        else
+          parsed = false
+          break
+        end
+      end
+    else
+      die "Service #{service} doesn't exist"
+    end
+
+    i -= parsed ? 0 : 1
+    parsed = true
+
+    case service
+    when 'dyndns'
+      SERVICES[service.to_sym] << srv
+    when 'afraid'
+      SERVICES[service.to_sym] += srv
+    end
+  end
+
+  die "Unrecognized option #{ARGV[i].inspect}" if !parsed
+
+  i += 1
+end
+
+DAEMONIZE = daemon
+
+DynDynDong.delay = delay if delay
+
+if SERVICES != {:dyndns=>[],:afraid=>[]}
+  if CONFIG == DEFAULT_CONFIG
+    SERVICES[:dyndns].each {|dyndns|
+      d = DynDynDong::DynDNS.new
+      d.username = dyndns[:username]
+      d.password = dyndns[:password]
+      dyndns[:hosts].each {|host|
+        d.host host
+      }
+      dyndns[:offline].each {|offline|
+        d.offline offline
+      }
+    }
+    
+    SERVICES[:afraid].each {|afraid|
+      a = DynDynDong::Afraid.new
+      begin
+        a.host(*afraid)
+      rescue ArgumentError
+        die "Respect the syntax of afraid please."
+      end
+    }
+  else
+    die "You can't use a configure file with custom services"
+  end
+else
+  begin
+    eval(File.read(CONFIG))
+  rescue Exception => e
+    die "Config error: #{e}"
+  end
+end
+
+if DAEMONIZE
+  DynDynDong::Daemon.start
+else
+  DynDynDong::Client.start_loop
+end
