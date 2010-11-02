@@ -1,4 +1,21 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
+#
+# Copyleft shura. [shura1991@gmail.com]
+#
+# This file is part of DynDynDong.
+#
+# DynDynDong is free software: you can redistribute it and/or modify 
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# DynDynDong is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with failirc. If not, see <http://www.gnu.org/licenses/>.
 
 require 'dyndyndong'
 
@@ -7,9 +24,35 @@ def die(str)
   exit 1
 end
 
+def help
+  puts <<HELP
+DynDynDong v#{DynDynDong::VERSION} is distributed under the GNU Affero General Public License.
+
+USAGE: #{$0} [-d|-h|-1] [-c <config file>] [-D <delay>] [-s <service> <service args>]
+  -d|--daemon   Run DynDynDong as a daemon (default no).
+  -h|--help     Show this help.
+  -D|--delay    Set time to wait between two cycles (default 600).
+  -1|--oneshot  Do only a cycle (default no).
+  -c|--config   Set alternative configuration file (default /etc/dyndyndong.conf).
+  -s|--service  Start to parse a service, no defaults, you have to choose between:
+    - afraid    For freedns.afraid.org
+        AVAILABLE ARGUMENTS:
+          -H|-host        Set a single host or more hosts separated with ',' (comma), it can be repeated
+    - dyndns    Fro dyndns.com
+      AVAILABLE ARGUMENTS:
+          -u|--username   Set username for login, it can't be repeated
+          -p|--password   Set password for login, it can't be repeated
+          -H|--host       Set a single host or more hosts separated with ',' (comma), it can be repeated
+          -o|--offline    Set a single host or more hosts separated with ',' (comma) to make offline, it
+                            can be repeated
+      Parsing of services' arguments stop when an unrelated argument is given.
+HELP
+  exit 0
+end
+
 CONFIG = '/etc/dyndyndong.conf'
 DEFAULT_CONFIG = CONFIG.dup
-daemon = false
+oneshot = daemon = false
 
 i, SERVICES = 0, {
   :dyndns => [],
@@ -22,6 +65,8 @@ while i < ARGV.size
   case ARGV[i]
   when '-d', '--daemon'
     daemon = true
+  when '-h', '--help'
+    help
   when /^-D/, '--delay'
     if %w{-D --delay}.include?(ARGV[i])
       delay = ARGV[i += 1]
@@ -29,6 +74,8 @@ while i < ARGV.size
       delay = ARGV[i].gsub(/^-D/, '')
     end
     parsed = true
+  when '-1', '--oneshot'
+    parsed = oneshot = true
   when /^-c/, '--config'
     if %w{-c --config}.include?(ARGV[i])
       CONFIG.replace(ARGV[i += 1])
@@ -126,6 +173,8 @@ DAEMONIZE = daemon
 
 DynDynDong.delay = delay if delay
 
+die "You can't run client with --oneshot and --daemon simultaneously" if oneshot and DAEMONIZE
+
 if SERVICES != {:dyndns=>[],:afraid=>[]}
   if CONFIG == DEFAULT_CONFIG
     SERVICES[:dyndns].each {|dyndns|
@@ -162,5 +211,9 @@ end
 if DAEMONIZE
   DynDynDong::Daemon.start
 else
-  DynDynDong::Client.start_loop
+  if oneshot
+    DynDynDong::Client.start
+  else
+    DynDynDong::Client.start_loop
+  end
 end
