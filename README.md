@@ -5,7 +5,7 @@ DynDynDong is a ruby written client to update dynamic dns and it supports many
 services.
 I know, there is inadyn and others shit, but they are totally crappy and
 limitated.
-Name is inspired by [Gunter - Ding Ding Dong](http://www.youtube.com/watch?v=DbYtqAWDF2U).
+Name is inspired to [Gunther - Ding Ding Dong](http://www.youtube.com/watch?v=DbYtqAWDF2U).
 
 You can see some working examples in examples directory.
 
