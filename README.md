@@ -10,9 +10,11 @@ Name is inspired by [Gunter - Ding Ding Dong](http://www.youtube.com/watch?v=DbY
 You can see some working examples in examples directory.
 
 DynDynDong::Afraid has:
+
   * host - It accept 2 arguments, domain and hash, in order.
 
 DynDynDong::DynDNS has:
+
   * username  - It accept 1 argument, the username.
   * password  - It accept 1 argument, the password.
   * host      - It accept 1 argument, the domain to update.
