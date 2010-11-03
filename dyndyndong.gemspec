@@ -16,5 +16,4 @@ Gem::Specification.new {|g|
   g.has_rdoc      = true
 
   g.add_dependency('daemons')
-  g.add_dependency('net/http')
 }
