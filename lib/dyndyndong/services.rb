@@ -17,6 +17,8 @@
 # along with dyndyndong. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+$DEBUG = true
+
 module DynDynDong
 
 class Service

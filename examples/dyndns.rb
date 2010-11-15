@@ -24,4 +24,4 @@ DynDynDong::DynDNS.new {
   host 'my.host.org'
 }
 
-DynDynDong::Daemon.start
+DynDynDong::Client.start_loop
