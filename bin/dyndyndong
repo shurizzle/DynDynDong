@@ -41,13 +41,25 @@ USAGE: #{$0} [-d|-h|-1] [-c <config file>] [-D <delay>] [-s <service> <service a
     - afraid    For freedns.afraid.org
         AVAILABLE ARGUMENTS:
           -H|--host       Set a single host or more hosts separated with ',' (comma), it can be repeated
-    - dyndns    Fro dyndns.com
+    - dyndns    For dyndns.com
       AVAILABLE ARGUMENTS:
           -u|--username   Set username for login, it can't be repeated
           -p|--password   Set password for login, it can't be repeated
           -H|--host       Set a single host or more hosts separated with ',' (comma), it can be repeated
           -o|--offline    Set a single host or more hosts separated with ',' (comma) to make offline, it
                             can be repeated
+    - no-ip     For no-ip-com
+      AVAILABLE ARGUMENTS:
+          -u|--username   Set username for login, it can't be repeated
+          -p|--password   Set password for login, it can't be repeated
+          -H|--host       Set a single host or more hosts separated with ',' (comma), it can be repeated
+          -o|--offline    Set a single host or more hosts separated with ',' (comma) to make offline, it
+                            can be repeated
+    - zoneedit  For zoneedit.com
+      AVAILABLE ARGUMENTS:
+          -u|--username   Set username for login, it can't be repeated
+          -p|--password   Set password for login, it can't be repeated
+          -H|--host       Set a single host or more hosts separated with ',' (comma), it can be repeated
       Parsing of services' arguments stop when an unrelated argument is given.
 HELP
   exit 0
@@ -114,7 +126,7 @@ while i < ARGV.size
     end
 
     case service
-    when 'dyndns'
+    when 'dyndns', 'no-ip'
       srv = {:hosts => [], :offline => []}
       while (i += 1) < ARGV.size
         parsed = true
@@ -154,6 +166,40 @@ while i < ARGV.size
       end
       srv[:hosts].flatten!
       srv[:offline].flatten!
+    when 'zoneedit'
+      srv = {:hosts => []}
+      while (i += 1) < ARGV.size
+        parsed = true
+        case ARGV[i]
+        when /^-u/, '--username'
+          die "Can't add more than one username" if srv[:username]
+
+          if %w{-u --username}.include?(ARGV[1])
+            srv[:username] = ARGV[i += 1]
+          else
+            srv[:username] = ARGV[i].gsub(/^-u/, '')
+          end
+        when /^-p/, '--password'
+          die "Can't add more than one password" if srv[:password]
+
+          if %w{-p --password}.include?(ARGV[1])
+            srv[:password] = ARGV[i += 1]
+          else
+            srv[:password] = ARGV[i].gsub(/^-p/, '')
+          end
+        when /^-H/, '--host'
+          if %w{-H --host}.include?(ARGV[i])
+            srv[:hosts] << ARGV[i += 1].split(',')
+          else
+            srv[:hosts] << ARGV[i].gsub(/^-H/, '').split(',')
+          end
+        else
+          parsed = false
+          break
+        end
+      end
+      srv[:hosts].flatten!
+      srv[:offline].flatten!
     when 'afraid'
       srv = []
 
@@ -180,10 +226,10 @@ while i < ARGV.size
     parsed = true
 
     case service
-    when 'dyndns'
-      SERVICES[service.to_sym] << srv
     when 'afraid'
       SERVICES[service.to_sym] += srv
+    else
+      SERVICES[service.to_sym] << srv
     end
   end
 
@@ -219,6 +265,27 @@ if SERVICES != {:dyndns=>[],:afraid=>[]}
       rescue ArgumentError
         die "Respect the syntax of afraid please."
       end
+    }
+
+    SERVICES[:zoneedit],each {|zoneedit|
+      z = DynDynDong::ZoneEdit.new
+      z.username = zoneedit[:username]
+      z.password = zoneedit[:password]
+      zoneedit[:hosts].each {|host|
+        z.host host
+      }
+    }
+
+    SERVICES[:'no-ip'].each {|noip|
+      n = DynDynDong::NoIp.new
+      n.username = noip[:username]
+      n.password = noip[:password]
+      noip[:hosts].each {|host|
+        n.host host
+      }
+      noip[:offline].each {|offline|
+        n.offline offline
+      }
     }
   else
     die "You can't use a configure file with custom services"

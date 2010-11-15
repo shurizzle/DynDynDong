@@ -20,6 +20,19 @@ DynDynDong::DynDNS has:
   * host      - It accept 1 argument, the domain to update.
   * offline   - It accept 1 argument, the domain to hide, only premium.
 
+DynDynDong::NoIp has:
+
+  * username  - It accept 1 argument, the username.
+  * password  - It accept 1 argument, the password.
+  * host      - It accept 1 argument, the domain to update.
+  * offline   - It accept 1 argument, the domain to hide, only premium.
+
+DynDynDong::ZoneEdit has:
+
+  * username  - It accept 1 argument, the username.
+  * password  - It accept 1 argument, the password.
+  * host      - It accept 1 argument, the domain to update.
+
 There are, also, the functions DynDynDong.delay= and DynDynDong.delay, useful to
 set and get the time to wait between two updates.
 
