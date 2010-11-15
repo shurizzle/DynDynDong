@@ -40,7 +40,7 @@ USAGE: #{$0} [-d|-h|-1] [-c <config file>] [-D <delay>] [-s <service> <service a
   -s|--service  Start to parse a service, no defaults, you have to choose between:
     - afraid    For freedns.afraid.org
         AVAILABLE ARGUMENTS:
-          -H|-host        Set a single host or more hosts separated with ',' (comma), it can be repeated
+          -H|--host       Set a single host or more hosts separated with ',' (comma), it can be repeated
     - dyndns    Fro dyndns.com
       AVAILABLE ARGUMENTS:
           -u|--username   Set username for login, it can't be repeated
