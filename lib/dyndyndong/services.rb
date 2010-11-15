@@ -1,3 +1,4 @@
+#--
 # Copyleft shura. [shura1991@gmail.com]
 #
 # This file is part of DynDynDong.
@@ -13,7 +14,8 @@
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with failirc. If not, see <http://www.gnu.org/licenses/>.
+# along with dyndyndong. If not, see <http://www.gnu.org/licenses/>.
+#++
 
 module DynDynDong
 
@@ -28,24 +30,24 @@ class Service
 
   def fetch
     begin
-      prefetch if (self.method(:prefetch) rescue nil)
+      prefetch if self.respond_to?(:prefetch)
     rescue Exception => e
       STDERR.puts("Prefetch error: #{e}, skipping...")
       return
     end
 
     @hosts.each {|args|
-      STDOUT.write("Aliasing #{args.first}...")
+      STDOUT.write("Aliasing #{args.is_a?(Array) ? args.first : args}...")
       begin
         res = alias_host(*args)
-        STDOUT.write("\r--- #{args.first}        \n\t#{res.gsub(/\n/, "\n\t")}\n")
+        STDOUT.write("\r--- #{args.is_a?(Array) ? args.first : args}        \n\t#{res.gsub(/\n/, "\n\t")}\n")
       rescue Exception => e
         STDERR.puts("\tFetch error: #{e}, skipping...")
       end
     }
 
     begin
-      postfetch if self.method(:postfetch) rescue nil
+      postfetch if self.respond_to?(:postfetch)
     rescue Exception => e
       STDERR.puts("Postfetch error: #{e}")
     end
@@ -87,5 +89,6 @@ end
 
 end
 
-require 'dyndyndong/services/afraid'
-require 'dyndyndong/services/dyndns'
+%w{afraid dyndns zoneedit}.each {|s|
+  require "dyndyndong/services/#{s}"
+}

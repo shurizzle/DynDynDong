@@ -29,6 +29,9 @@ def help
 DynDynDong v#{DynDynDong::VERSION} is distributed under the GNU Affero General Public License.
 
 USAGE: #{$0} [-d|-h|-1] [-c <config file>] [-D <delay>] [-s <service> <service args>]
+  -l|--logfile  Set the logfile (default /var/log/dyndyndong.log).
+  -P|--pidfile  Set pidfile (default /var/run/dyndyndong.pid).
+  --            Null action, to breaks parsing of a service.
   -d|--daemon   Run DynDynDong as a daemon (default no).
   -h|--help     Show this help.
   -D|--delay    Set time to wait between two cycles (default 600).
@@ -52,6 +55,8 @@ end
 
 CONFIG = '/etc/dyndyndong.conf'
 DEFAULT_CONFIG = CONFIG.dup
+PIDFILE = '/var/run/dyndyndong.pid'
+LOGFILE = '/var/log/dyndyndong.log'
 oneshot = daemon = false
 
 i, SERVICES = 0, {
@@ -63,8 +68,26 @@ i, SERVICES = 0, {
 while i < ARGV.size
   parsed = false
   case ARGV[i]
+  when '--'
+    parsed = true
+  when /^-l/, '--logfile'
+    if %w{-l --logfile}.include?(ARGV[i])
+      LOGFILE.replace ARGV[i += 1]
+    else
+      LOGFILE.replace ARGV[i].gsub(/^-l/, '')
+    end
+    STDERR.reopen(File.open(LOGFILE))
+    STDOUT.reopen(STDERR)
+    parsed = true
+  when /^-P/, '--pidfile'
+    if %w{-P --pidfile}.include?(ARGV[i])
+      PIDFILE.replace ARGV[i += 1]
+    else
+      PIDFILE.replace ARGV[i].gsub(/^-P/, '')
+    end
+    parsed = true
   when '-d', '--daemon'
-    daemon = true
+    daemon = parsed = true
   when '-h', '--help'
     help
   when /^-D/, '--delay'
@@ -209,7 +232,16 @@ else
 end
 
 if DAEMONIZE
-  DynDynDong::Daemon.start
+  Daemons.daemonize
+
+  File.open(PIDFILE) {|f|
+    f.write(Process.pid.to_s)
+  }
+
+  STDOUT.reopen(File.open(LOGFILE))
+  STDERR.reopen(STDOUT)
+
+  DynDynDong::Client.start_loop
 else
   if oneshot
     DynDynDong::Client.start
