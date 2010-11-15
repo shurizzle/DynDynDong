@@ -20,8 +20,7 @@
 module DynDynDong
 
 class NoIp < DynDNS
-  def MSGTABLE(x)
-    {
+  set :MSGTABLE, {
       'good'      => 'DNS hostname update successful.',
       'nochg'     => 'IP address is current, no update performed.',
       'nohost'    => 'Hostname supplied does not exist under specified account.',
@@ -31,17 +30,7 @@ class NoIp < DynDNS
       'abuse'     => 'Username is blocked due to abuse.',
       '911'       => 'A fatal error on our side such as a database outage.'
     }
-  end
-
-private
-
-  def update_host
-    'dynupdate.no-ip.com'
-  end
-
-  def offline?(offline)
-    super(offline).gsub(/CHG$/, '')
-  end
+  set :UPDATE_HOST, 'dynupdate.no-ip.com'
 end
 
 end

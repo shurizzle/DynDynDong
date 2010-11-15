@@ -17,8 +17,6 @@
 # along with dyndyndong. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-$DEBUG = true
-
 module DynDynDong
 
 class Service
@@ -91,6 +89,6 @@ end
 
 end
 
-%w{afraid dyndns zoneedit}.each {|s|
+%w{generic afraid dyndns zoneedit no-ip}.each {|s|
   require "dyndyndong/services/#{s}"
 }
