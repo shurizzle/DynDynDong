@@ -16,6 +16,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with dyndyndong. If not, see <http://www.gnu.org/licenses/>.
 #++
-
+$DEBUG = true
 require 'dyndyndong/client'
 require 'dyndyndong/daemon'

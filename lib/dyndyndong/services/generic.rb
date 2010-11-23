@@ -87,27 +87,29 @@ class Generic < Service
       raise ArgumentError, "wrong number of arguments (#{args.size} for 2)" if args.size != 2
       raise ArgumentError, "wrong type" if !args[0].is_a?(String) or !args[1].is_a?(String)
       self.class_eval %Q{
-        def offlines(what)
+        def offlines
           {
             'YES' => #{args[0].inspect},
             'NO'  => #{args[1].inspect}
-          }[what]
+          }
         end
       }
+    else
+      raise ArgumentError, "Cannot set #{sym}"
     end
   end
 
 private
 
-  def offlines(what)
+  def offlines
     {
       'YES' => 'YES',
       'NO'  => 'NO'
-    }[what]
+    }
   end
   
   def offline?(offline)
-    offline ? offlines('YES') : offlines('NO')
+    offline ? offlines['YES'] : offlines['NO']
   end
 
   def getip(h = nil)
