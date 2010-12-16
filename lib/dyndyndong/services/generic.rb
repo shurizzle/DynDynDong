@@ -70,27 +70,30 @@ class Generic < Service
     when 'msgtable'
       raise ArgumentError, "wrong number of arguments (#{args.size} for 1)" if args.size != 1
       raise ArgumentError, "wrong type" if !args.first.is_a?(Hash)
-      self.class_eval %Q{
-        def MSGTABLE(x)
-          #{args.first.inspect}[x]
+
+      self.class_eval {
+        define_method 'MSGTABLE' do |x|
+          args.first[x]
         end
       }
     when 'update_host'
       raise ArgumentError, "wrong number of arguments (#{args.size} for 1)" if args.size != 1
       raise ArgumentError, "wrong type" if !args.first.is_a?(String)
-      self.class_eval %Q{
-        def update_host
-          #{args.first.inspect}
+
+      self.class_eval {
+        define_method 'update_host' do
+          args.first
         end
       }
     when 'offline'
       raise ArgumentError, "wrong number of arguments (#{args.size} for 2)" if args.size != 2
       raise ArgumentError, "wrong type" if !args[0].is_a?(String) or !args[1].is_a?(String)
-      self.class_eval %Q{
-        def offlines
+
+      self.class_eval {
+        define_method 'offlines' do
           {
-            'YES' => #{args[0].inspect},
-            'NO'  => #{args[1].inspect}
+            'YES' => args[0],
+            'NO'  => args[1]
           }
         end
       }
