@@ -267,7 +267,7 @@ if SERVICES != {:dyndns=>[],:afraid=>[]}
       end
     }
 
-    SERVICES[:zoneedit],each {|zoneedit|
+    SERVICES[:zoneedit].each {|zoneedit|
       z = DynDynDong::ZoneEdit.new
       z.username = zoneedit[:username]
       z.password = zoneedit[:password]

@@ -60,7 +60,7 @@ class Generic < Service
           URI.escape(h), getip(h), offline?(offline)])
       req.basic_auth @user, @pass
       x = http.request(req).body.gsub(/#{Regexp.escape(@ip)}/, '').strip
-      MSGTABLE(x)
+      MSGTABLE[x]
     }
   end
 
@@ -72,8 +72,8 @@ class Generic < Service
       raise ArgumentError, "wrong type" if !args.first.is_a?(Hash)
 
       self.class_eval {
-        define_method 'MSGTABLE' do |x|
-          args.first[x]
+        define_method 'MSGTABLE' do
+          args.first
         end
       }
     when 'update_host'

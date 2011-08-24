@@ -1,3 +1,4 @@
+#--
 # Copyleft shura. [shura1991@gmail.com]
 #
 # This file is part of DynDynDong.
@@ -14,6 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with dyndyndong. If not, see <http://www.gnu.org/licenses/>.
+#++
 
 require File.realpath(File.join(File.dirname(__FILE__), 'common.rb'))
 
