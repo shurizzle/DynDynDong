@@ -3,7 +3,7 @@
 #
 # This file is part of DynDynDong.
 #
-# DynDynDong is free software: you can redistribute it and/or modify 
+# DynDynDong is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -17,5 +17,6 @@
 # along with dyndyndong. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'dyndyndong/version'
 require 'dyndyndong/client'
 require 'dyndyndong/daemon'

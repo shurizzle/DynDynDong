@@ -4,7 +4,7 @@
 #
 # This file is part of DynDynDong.
 #
-# DynDynDong is free software: you can redistribute it and/or modify 
+# DynDynDong is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -88,7 +88,7 @@ while i < ARGV.size
     else
       LOGFILE.replace ARGV[i].gsub(/^-l/, '')
     end
-    STDERR.reopen(File.open(LOGFILE))
+    STDERR.reopen(File.open(LOGFILE, 'w'))
     STDOUT.reopen(STDERR)
     parsed = true
   when /^-P/, '--pidfile'
@@ -257,7 +257,7 @@ if SERVICES != {:dyndns=>[],:afraid=>[]}
         d.offline offline
       }
     }
-    
+
     SERVICES[:afraid].each {|afraid|
       a = DynDynDong::Afraid.new
       begin
@@ -301,11 +301,12 @@ end
 if DAEMONIZE
   Daemons.daemonize
 
-  File.open(PIDFILE) {|f|
+  File.open(PIDFILE, 'w') {|f|
     f.write(Process.pid.to_s)
   }
 
-  STDOUT.reopen(File.open(LOGFILE))
+  File.open(LOGFILE, 'w') {|f|}
+  STDOUT.reopen(File.open(LOGFILE, 'w'))
   STDERR.reopen(STDOUT)
 
   DynDynDong::Client.start_loop
